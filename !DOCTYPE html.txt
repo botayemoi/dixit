@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dixit Offline</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .card img {
+            width: 100%;
+            height: auto;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dixit Offline</h1>
+        <button id="start-game">Bắt đầu trò chơi</button>
+
+        <div id="setup-section" class="hidden">
+            <h2>Tải lên thẻ bài</h2>
+            <input type="file" id="upload-input" accept="image/*" multiple />
+            <button id="start-round">Bắt đầu lượt chơi</button>
+            <div id="uploaded-images" class="card-grid"></div>
+        </div>
+
+        <div id="game-section" class="hidden">
+            <h2>Lượt chơi</h2>
+            <p id="storyteller">Người kể chuyện: <span id="current-storyteller"></span></p>
+            <input type="text" id="clue-input" placeholder="Nhập gợi ý của bạn" />
+            <button id="submit-clue">Xác nhận gợi ý</button>
+            <div id="game-cards" class="card-grid"></div>
+            <p id="results" class="hidden">Kết quả đoán: <span id="results-text"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const startGameButton = document.getElementById("start-game");
+        const setupSection = document.getElementById("setup-section");
+        const gameSection = document.getElementById("game-section");
+
+        const uploadInput = document.getElementById("upload-input");
+        const uploadedImages = document.getElementById("uploaded-images");
+        const startRoundButton = document.getElementById("start-round");
+
+        const gameCards = document.getElementById("game-cards");
+        const clueInput = document.getElementById("clue-input");
+        const submitClueButton = document.getElementById("submit-clue");
+        const results = document.getElementById("results");
+        const resultsText = document.getElementById("results-text");
+
+        let cards = [];
+        let storytellerIndex = 0;
+
+        startGameButton.addEventListener("click", () => {
+            setupSection.classList.remove("hidden");
+            startGameButton.classList.add("hidden");
+        });
+
+        uploadInput.addEventListener("change", (event) => {
+            const files = event.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    cards.push(e.target.result);
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    const card = document.createElement("div");
+                    card.classList.add("card");
+                    card.appendChild(img);
+                    uploadedImages.appendChild(card);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        startRoundButton.addEventListener("click", () => {
+            setupSection.classList.add("hidden");
+            gameSection.classList.remove("hidden");
+            updateStoryteller();
+            renderCards();
+        });
+
+        submitClueButton.addEventListener("click", () => {
+            const clue = clueInput.value;
+            if (clue) {
+                resultsText.textContent = `Gợi ý: ${clue}`;
+                results.classList.remove("hidden");
+                clueInput.value = "";
+            }
+        });
+
+        function updateStoryteller() {
+            const currentStoryteller = document.getElementById("current-storyteller");
+            currentStoryteller.textContent = `Người chơi ${storytellerIndex + 1}`;
+        }
+
+        function renderCards() {
+            gameCards.innerHTML = "";
+            cards.forEach((src, index) => {
+                const img = document.createElement("img");
+                img.src = src;
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.appendChild(img);
+                gameCards.appendChild(card);
+
+                card.addEventListener("click", () => {
+                    alert(`Bạn đã chọn thẻ ${index + 1}`);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
